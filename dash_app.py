@@ -474,6 +474,7 @@ def update_actual_graph(start_date, end_date, selected_vars):
                     x=normal_rows["UTC_STAMP"],
                     y=normal_rows["value"],
                     mode="lines+markers",
+                    marker=dict(size=8),
                     name=f"{col_name} (sampled)"
                 )
             )
@@ -485,7 +486,7 @@ def update_actual_graph(start_date, end_date, selected_vars):
                     x=max_rows["UTC_STAMP"],
                     y=max_rows["value"],
                     mode="markers",
-                    marker=dict(size=8, symbol="diamond-open"),
+                    marker=dict(size=10, symbol="diamond-open"),
                     name=f"{col_name} (max)"
                 )
             )
@@ -494,9 +495,15 @@ def update_actual_graph(start_date, end_date, selected_vars):
         title="Závislost příkonu na čase",
         xaxis_title="Datum",
         yaxis_title="kW",
-        hovermode="x unified"
+        hovermode="x unified",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        )
     )
-
     # Add a little extra spacing in final text
     info_text += f" | Zobrazené sloupce: {', '.join(selected_vars)} | Hustota = 1/{step}."
 
