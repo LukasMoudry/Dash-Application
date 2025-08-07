@@ -275,20 +275,6 @@ app.layout = html.Div([
     html.Div([
         html.H3("Závislost příkonu na čase"),
 
-        # Date Range Section
-     #   html.Span("VYBER SI PRVNÍ A POSLEDNÍ DATUM ROZMEZÍ, KTERÉ CHCEŠ ZOBRAZIT (ACTUAL):"),
-        html.Br(),
-
-        dcc.DatePickerRange(
-            id='date-picker-actual',
-            start_date=default_start_date_act,
-            end_date=default_end_date_act,
-            min_date_allowed=actual_min_date,
-            max_date_allowed=actual_max_date,
-            display_format="YYYY-MM-DD",
-        ),
-        html.Br(),
-
         # Some blank space
         html.Div(style={"height": "10px"}),
 
@@ -322,6 +308,19 @@ app.layout = html.Div([
         # Info about what the graph is displaying
         html.Div(id="actual-data-info", style={"margin-bottom": "40px"}),  # extra margin for spacing
 
+        # Date picker above the graph, aligned to the right
+        html.Div(
+            dcc.DatePickerRange(
+                id='date-picker-actual',
+                start_date=default_start_date_act,
+                end_date=default_end_date_act,
+                min_date_allowed=actual_min_date,
+                max_date_allowed=actual_max_date,
+                display_format="YYYY-MM-DD",
+            ),
+            style={"display": "flex", "justify-content": "flex-end", "margin-bottom": "10px"}
+        ),
+
         # The ACTUAL graph with loading indicator
         dcc.Loading(
             id="loading-actual",
@@ -329,7 +328,6 @@ app.layout = html.Div([
             children=[dcc.Graph(id="consumption_vs_time")]
         ),
     ]),
-
     # ------------------- TOTAL LAYOUT ------------------- #
     html.Div([
         html.H3("Celková spotřeba podle času"),
@@ -613,6 +611,16 @@ def update_total_graph(stored_data, aggregation_level, bar_mode, start_date, end
         barmode=bar_mode,
         title="Spotřebovaná energie",
         labels={"period": "DATUM", "value": "kWh"}
+    )
+
+    fig.update_layout(
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        )
     )
 
     info_text = f"Graf teď zobrazuje data od {start_date} do {end_date}"
