@@ -89,6 +89,55 @@ def build_column_list(selected_display_vars):
     return list(needed_cols)
 
 
+def get_period_options(min_date, max_date):
+    """
+    Given min_date and max_date (YYYY-MM-DD strings),
+    return a dictionary with possible selections for year/month/week/day.
+    """
+    if not min_date or not max_date:
+        return {"year": [], "month": [], "week": [], "day": []}
+
+    start = pd.to_datetime(min_date)
+    end = pd.to_datetime(max_date)
+
+    years = [{"label": str(y), "value": str(y)} for y in pd.period_range(start, end, freq="Y").year]
+    months = [{"label": p.strftime("%Y-%m"), "value": p.strftime("%Y-%m")} for p in
+              pd.period_range(start, end, freq="M")]
+    weeks = [
+        {"label": p.start_time.strftime("%Y-%m-%d"), "value": p.start_time.strftime("%Y-%m-%d")}
+        for p in pd.period_range(start, end, freq="W-MON")
+    ]
+    days = [
+        {"label": d.strftime("%Y-%m-%d"), "value": d.strftime("%Y-%m-%d")}
+        for d in pd.date_range(start, end, freq="D")
+    ]
+
+    return {"year": years, "month": months, "week": weeks, "day": days}
+
+
+def compute_start_end(unit, value):
+    """
+    For a given time unit ('year', 'month', 'week', 'day') and selected value,
+    compute start_date and end_date strings (YYYY-MM-DD).
+    """
+    if not unit or not value:
+        return None, None
+
+    if unit == "year":
+        start = f"{value}-01-01"
+        end = f"{value}-12-31"
+    elif unit == "month":
+        start = f"{value}-01"
+        end = (pd.to_datetime(start) + pd.offsets.MonthEnd(0)).strftime("%Y-%m-%d")
+    elif unit == "week":
+        start = value
+        end = (pd.to_datetime(start) + pd.Timedelta(days=6)).strftime("%Y-%m-%d")
+    else:  # 'day'
+        start = value
+        end = value
+
+    return start, end
+
 def query_data_actual_advanced(start_dt_str, end_dt_str, needed_db_cols, step):
     """
     Retrieves only step-sampled rows + daily maxima from the 'ACTUAL' table
@@ -238,27 +287,13 @@ if total_max_full:
 else:
     total_max_date = None
 
-# For default: Use the earliest day + 1 day for the "actual" DatePicker
-default_start_date_act = actual_min_date
-default_end_date_act = None
-if actual_min_date:
-    try:
-        start_obj_a = datetime.strptime(actual_min_date, "%Y-%m-%d")
-        end_obj_a = start_obj_a + timedelta(days=1)  # next day
-        default_end_date_act = end_obj_a.strftime("%Y-%m-%d")
-    except ValueError:
-        default_end_date_act = actual_min_date
+period_options_act = get_period_options(actual_min_date, actual_max_date)
+period_options_tot = get_period_options(total_min_date, total_max_date)
 
-# For TOTAl: earliest day + 1 day for the "total" DatePicker
-default_start_date_tot = total_min_date
-default_end_date_tot = None
-if total_min_date:
-    try:
-        start_obj_t = datetime.strptime(total_min_date, "%Y-%m-%d")
-        end_obj_t = start_obj_t + timedelta(days=1)
-        default_end_date_tot = end_obj_t.strftime("%Y-%m-%d")
-    except ValueError:
-        default_end_date_tot = total_min_date
+default_unit_act = "day" if actual_min_date else None
+default_value_act = actual_min_date
+default_unit_tot = "day" if total_min_date else None
+default_value_tot = total_min_date
 
 range_text_act = f"Databáze (ACTUAL) obsahuje data od {actual_min_date} do {actual_max_date}"
 range_text_tot = f"Databáze (TOTAL) obsahuje data od {total_min_date} do {total_max_date}"
@@ -271,85 +306,83 @@ app.layout = html.Div([
     # Memory Store for 'TOTAL' data
     dcc.Store(id="df-store-total", storage_type="memory"),
 
-    # ------------------- ACTUAL LAYOUT ------------------- #
     html.Div([
         html.H3("Závislost příkonu na čase"),
-
-        # Some blank space
         html.Div(style={"height": "10px"}),
-
-        # Databáze info text for ACTUAL (further down)
-        html.Div(range_text_act, style={"margin-bottom": "50px"}),
-
-        # Variable Checklist Section
-        html.Span("VYBER SI, KTERÁ DATA ZOBRAZÍŠ NA GRAFU (ACTUAL):"),
-        html.Br(),
-
-        dcc.Checklist(
-            id='variable-checklist',
-            options=[
-                {'label': 'IN', 'value': 'IN'},
-                {'label': 'OUT', 'value': 'OUT'},
-                {'label': 'ATLAS', 'value': 'ATLAS'},
-                {'label': 'BUPI', 'value': 'BUPI'},
-                {'label': 'RENDER', 'value': 'RENDER'},
-            ],
-            value=[],
-            style={
-                "display": "inline-flex",
-                "flex-wrap": "wrap",
-                "gap": "10px",
-                "margin-bottom": "40px"
-            }
-        ),
-
-        html.Br(),
-
-        # Info about what the graph is displaying
-        html.Div(id="actual-data-info", style={"margin-bottom": "40px"}),  # extra margin for spacing
-
-        # Date picker above the graph, aligned to the right
-        html.Div(
-            dcc.DatePickerRange(
-                id='date-picker-actual',
-                start_date=default_start_date_act,
-                end_date=default_end_date_act,
-                min_date_allowed=actual_min_date,
-                max_date_allowed=actual_max_date,
-                display_format="YYYY-MM-DD",
-            ),
-            style={"display": "flex", "justify-content": "flex-end", "margin-bottom": "10px"}
-        ),
-
-        # The ACTUAL graph with loading indicator
-        dcc.Loading(
-            id="loading-actual",
-            type="circle",
-            children=[dcc.Graph(id="consumption_vs_time")]
-        ),
+        html.Div(range_text_act, style={"margin-bottom": "20px"}),
+        html.Div([
+            html.Div([
+                html.Div([
+                    dcc.RadioItems(
+                        id="time-unit-actual",
+                        options=[
+                            {"label": "Rok", "value": "year"},
+                            {"label": "Měsíc", "value": "month"},
+                            {"label": "Týden", "value": "week"},
+                            {"label": "Den", "value": "day"},
+                        ],
+                        value=default_unit_act,
+                        inline=True,
+                        labelStyle={"margin-right": "10px"}
+                    ),
+                    dcc.Dropdown(
+                        id="time-value-actual",
+                        options=period_options_act.get(default_unit_act, []),
+                        value=default_value_act,
+                        style={"width": "200px", "margin-left": "10px"}
+                    ),
+                ], style={"display": "flex", "align-items": "center", "margin-bottom": "10px"}),
+                dcc.Loading(
+                    id="loading-actual",
+                    type="circle",
+                    children=[dcc.Graph(id="consumption_vs_time")]
+                ),
+                html.Div(id="actual-data-info", style={"margin-top": "30px"})
+            ], style={"flex": "1", "display": "flex", "flex-direction": "column"}),
+            html.Div([
+                html.Span("VYBER SI, KTERÁ DATA ZOBRAZÍŠ NA GRAFU (ACTUAL):"),
+                dcc.Checklist(
+                    id="variable-checklist",
+                    options=[
+                        {'label': 'IN', 'value': 'IN'},
+                        {'label': 'OUT', 'value': 'OUT'},
+                        {'label': 'ATLAS', 'value': 'ATLAS'},
+                        {'label': 'BUPI', 'value': 'BUPI'},
+                        {'label': 'RENDER', 'value': 'RENDER'},
+                    ],
+                    value=[],
+                    style={
+                        "display": "flex",
+                        "flex-direction": "column",
+                        "gap": "10px"
+                    }
+                ),
+            ], style={"margin-left": "20px", "display": "flex", "flex-direction": "column"})
+        ], style={"display": "flex"})
     ]),
     # ------------------- TOTAL LAYOUT ------------------- #
     html.Div([
         html.H3("Celková spotřeba podle času"),
-
-        # Date Range Section
-        html.Span("VYBER SI PRVNÍ A POSLEDNÍ DATUM ROZMEZÍ, KTERÉ CHCEŠ ZOBRAZIT (TOTAL):"),
-        html.Br(),
-
-        dcc.DatePickerRange(
-            id='date-picker-total',
-            start_date=default_start_date_tot,
-            end_date=default_end_date_tot,
-            min_date_allowed=total_min_date,
-            max_date_allowed=total_max_date,
-            display_format="YYYY-MM-DD",
-        ),
-        html.Br(),
-
-        # Some blank space
-        html.Div(style={"height": "20px"}),
-
-        # Databáze info text for TOTAL
+        html.Div([
+            dcc.RadioItems(
+                id="time-unit-total",
+                options=[
+                    {"label": "Rok", "value": "year"},
+                    {"label": "Měsíc", "value": "month"},
+                    {"label": "Týden", "value": "week"},
+                    {"label": "Den", "value": "day"},
+                ],
+                value=default_unit_tot,
+                inline=True,
+                labelStyle={"margin-right": "10px"}
+            ),
+            dcc.Dropdown(
+                id="time-value-total",
+                options=period_options_tot.get(default_unit_tot, []),
+                value=default_value_tot,
+                style={"width": "200px", "margin-left": "10px"}
+            )
+        ], style={"display": "flex", "align-items": "center", "margin-bottom": "20px"}),
         html.Div(range_text_tot, style={"margin-bottom": "20px"}),
 
         # Aggregation Dropdown & Label on top
@@ -357,8 +390,7 @@ app.layout = html.Div([
             html.Span("VYBER SI FORMÁT ZOBRAZENÍ (TOTAL)", style={"margin-bottom": "10px", "margin-top": "10px"}),
             dcc.Dropdown(
                 id='aggregation-dropdown',
-                options=[
-                    {'label': 'Dny', 'value': 'D'},
+                options=[                    {'label': 'Dny', 'value': 'D'},
                     {'label': 'Týdny', 'value': 'T'},
                     {'label': 'Měsíce', 'value': 'M'},
                     {'label': 'Roky', 'value': 'R'},
@@ -408,55 +440,71 @@ app.layout = html.Div([
 
 
 # --------------------------------------------------------------------------------
-# ACTUAL Graph Callback
+# Time selector option callbacks
 # --------------------------------------------------------------------------------
 @app.callback(
+    [Output("time-value-actual", "options"), Output("time-value-actual", "value")],
+    Input("time-unit-actual", "value"),
+)
+def update_time_value_actual(unit):
+    opts = period_options_act.get(unit, [])
+    val = opts[0]["value"] if opts else None
+    return opts, val
+
+
+@app.callback(
+    [Output("time-value-total", "options"), Output("time-value-total", "value")],
+    Input("time-unit-total", "value"),
+)
+def update_time_value_total(unit):
+    opts = period_options_tot.get(unit, [])
+    val = opts[0]["value"] if opts else None
+    return opts, val
+
+
+# --------------------------------------------------------------------------------
+# ACTUAL Graph Callback
+# --------------------------------------------------------------------------------@app.callback(
     [
         Output("consumption_vs_time", "figure"),
         Output("actual-data-info", "children"),
     ],
     [
-        Input("date-picker-actual", "start_date"),
-        Input("date-picker-actual", "end_date"),
+        Input("time-unit-actual", "value"),
+        Input("time-value-actual", "value"),
         Input("variable-checklist", "value"),
     ]
-)
-def update_actual_graph(start_date, end_date, selected_vars):
-    # 1) If no date range
+
+def update_actual_graph(time_unit, time_value, selected_vars):
+    start_date, end_date = compute_start_end(time_unit, time_value)
     if not start_date or not end_date:
         return go.Figure(), "Graf teď nezobrazuje žádná data (není vybráno datum)"
 
-    # Compute how many days
     start_dt_obj = datetime.strptime(start_date, "%Y-%m-%d")
     end_dt_obj = datetime.strptime(end_date, "%Y-%m-%d")
     diff_days = (end_dt_obj - start_dt_obj).days
     if diff_days < 0:
         diff_days = 0
 
-    step = 10*(diff_days // 7)
+    step = 10 * (diff_days // 7)
     if step < 1:
         step = 1
 
     info_text = f"Data od {start_date} do {end_date}"
 
-    # 2) If no variables selected
     if not selected_vars:
         fig = go.Figure()
         return fig, info_text + " - bez vybraných sloupců."
 
-    # 3) Build date-time strings
     start_dt_str = f"{start_date} 00:00:00"
     end_dt_str = f"{end_date} 23:59:59"
 
-    # 4) Build the actual DB columns needed
     needed_db_cols = build_column_list(selected_vars)
 
-    # 5) Query the DB
     df = query_data_actual_advanced(start_dt_str, end_dt_str, needed_db_cols, step)
     if df.empty:
         return go.Figure(), info_text + " - v databázi nejsou žádná data."
 
-    # 6) Process and plot
     df['UTC_STAMP'] = pd.to_datetime(df['UTC_TIME'], unit='s', errors='coerce')
     df.sort_values(["variable", "UTC_STAMP"], inplace=True)
 
@@ -464,7 +512,6 @@ def update_actual_graph(start_date, end_date, selected_vars):
     unique_vars = df['variable'].unique()
     for col_name in unique_vars:
         sub = df[df['variable'] == col_name]
-        # normal points
         normal_rows = sub[sub['is_max'] == 0]
         if not normal_rows.empty:
             fig.add_trace(
@@ -475,7 +522,6 @@ def update_actual_graph(start_date, end_date, selected_vars):
                     name=f"{col_name} (sampled)"
                 )
             )
-        # max points
         max_rows = sub[sub['is_max'] == 1]
         if not max_rows.empty:
             fig.add_trace(
@@ -490,8 +536,8 @@ def update_actual_graph(start_date, end_date, selected_vars):
 
     fig.update_layout(
         title="Závislost příkonu na čase",
-        xaxis_title="Datum",
         yaxis_title="kW",
+        xaxis_title="Datum",
         hovermode="x unified",
         legend=dict(
             orientation="h",
@@ -501,11 +547,9 @@ def update_actual_graph(start_date, end_date, selected_vars):
             x=1
         )
     )
-    # Add a little extra spacing in final text
     info_text += f" | Zobrazené sloupce: {', '.join(selected_vars)} | Hustota = 1/{step}."
 
-    return fig, html.Div(info_text, style={"margin-top": "30px"})  # <--- placed more down
-
+    return fig, html.Div(info_text, style={"margin-top": "30px"})
 
 # --------------------------------------------------------------------------------
 # TOTAL Callbacks
@@ -514,18 +558,18 @@ def update_actual_graph(start_date, end_date, selected_vars):
 @app.callback(
     Output("df-store-total", "data"),
     [
-        Input("date-picker-total", "start_date"),
-        Input("date-picker-total", "end_date")
+        Input("time-unit-total", "value"),
+        Input("time-value-total", "value")
     ]
 )
-def update_total_data_store(start_date, end_date):
+def update_total_data_store(time_unit, time_value):
+    start_date, end_date = compute_start_end(time_unit, time_value)
     if not start_date or not end_date:
         print("No start or end date provided for TOTAL data")
         return None
 
     start_dt = f"{start_date} 00:00:00"
     end_dt = f"{end_date} 23:59:59"
-
     df_total = query_data_total(start_dt, end_dt)
     if df_total.empty:
         print("No data retrieved for TOTAL table")
@@ -563,17 +607,17 @@ def update_total_data_store(start_date, end_date):
         Input("df-store-total", "data"),
         Input("aggregation-dropdown", "value"),
         Input("bar-mode", "value"),
-        Input("date-picker-total", "start_date"),
-        Input("date-picker-total", "end_date")
+        Input("time-unit-total", "value"),
+        Input("time-value-total", "value")
     ]
 )
-def update_total_graph(stored_data, aggregation_level, bar_mode, start_date, end_date):
+def update_total_graph(stored_data, aggregation_level, bar_mode, time_unit, time_value):
+    start_date, end_date = compute_start_end(time_unit, time_value)
     if not stored_data or not start_date or not end_date:
         print("No data available in TOTAL store or missing date range.")
         return px.bar(title="No data"), "Graf teď nezobrazuje žádná data"
 
     df_total = pd.DataFrame(stored_data)
-
     # Convert UTC_STAMP to datetime
     df_total['time'] = pd.to_datetime(df_total['UTC_STAMP'], unit='s', errors='coerce')
     if df_total['time'].isna().any():
