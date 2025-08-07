@@ -66,27 +66,60 @@ def populate_actual(db_path, start_dt, end_dt, interval_minutes):
     print(f"Populated ACTUAL: {((end_dt-start_dt).days*24*60)//interval_minutes + 1} rows")
 
 def populate_total(db_path, start_date, num_days):
-    """Populate TOTAL with one row per day for `num_days` days."""
+    """
+    Populate TOTAL with one *cumulative* reading per day for `num_days` days.
+    Each day’s value is yesterday’s value plus a random increment.
+    """
     with sqlite3.connect(db_path) as cnx:
         cur = cnx.cursor()
+
+        # Initialize yesterday’s values to zero
+        prev_vals = {
+            "U_IN": 0.0, "V_IN": 0.0, "W_IN": 0.0,
+            "U_OUT": 0.0, "V_OUT": 0.0, "W_OUT": 0.0,
+            "ATLAS": 0.0, "BUPI": 0.0, "RENDER": 0.0
+        }
+
         for i in range(num_days):
             day = start_date + timedelta(days=i)
-            # timestamp at midnight UTC
             ts = int(datetime(day.year, day.month, day.day).timestamp())
-            # generate IN values
-            u_in, v_in, w_in = [random.uniform(1000,2000) for _ in range(3)]
-            # generate OUT values
-            u_out, v_out, w_out = [random.uniform(800,1500) for _ in range(3)]
-            atlas  = random.uniform(500,1000)
-            bupi   = random.uniform(300,800)
-            render = random.uniform(400,900)
+
+            # For each variable, add a positive random increment to yesterday’s total
+            increments = {
+                "U_IN": random.uniform(1000, 2000),
+                "V_IN": random.uniform(1000, 2000),
+                "W_IN": random.uniform(1000, 2000),
+                "U_OUT": random.uniform(800, 1500),
+                "V_OUT": random.uniform(800, 1500),
+                "W_OUT": random.uniform(800, 1500),
+                "ATLAS": random.uniform(500, 1000),
+                "BUPI": random.uniform(300, 800),
+                "RENDER": random.uniform(400, 900),
+            }
+
+            # Compute today’s cumulative totals
+            today_vals = {}
+            for col, inc in increments.items():
+                today_vals[col] = prev_vals[col] + inc
+
+            # Insert the row
             cur.execute("""
                 INSERT INTO TOTAL
-                (UTC_TIME,U_IN,V_IN,W_IN,U_OUT,V_OUT,W_OUT,ATLAS,BUPI,RENDER)
+                (UTC_TIME, U_IN, V_IN, W_IN, U_OUT, V_OUT, W_OUT, ATLAS, BUPI, RENDER)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (ts, u_in, v_in, w_in, u_out, v_out, w_out, atlas, bupi, render))
+            """, (
+                ts,
+                today_vals["U_IN"], today_vals["V_IN"], today_vals["W_IN"],
+                today_vals["U_OUT"], today_vals["V_OUT"], today_vals["W_OUT"],
+                today_vals["ATLAS"], today_vals["BUPI"], today_vals["RENDER"],
+            ))
+
+            # Update prev_vals for next iteration
+            prev_vals = today_vals
+
         cnx.commit()
-    print(f"Populated TOTAL: {num_days} rows")
+    print(f"Populated TOTAL with {num_days} cumulative rows")
+
 
 def main():
     p = argparse.ArgumentParser(

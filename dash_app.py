@@ -276,7 +276,7 @@ app.layout = html.Div([
         html.H3("Závislost příkonu na čase"),
 
         # Date Range Section
-        html.Span("VYBER SI PRVNÍ A POSLEDNÍ DATUM ROZMEZÍ, KTERÉ CHCEŠ ZOBRAZIT (ACTUAL):"),
+     #   html.Span("VYBER SI PRVNÍ A POSLEDNÍ DATUM ROZMEZÍ, KTERÉ CHCEŠ ZOBRAZIT (ACTUAL):"),
         html.Br(),
 
         dcc.DatePickerRange(
@@ -473,8 +473,7 @@ def update_actual_graph(start_date, end_date, selected_vars):
                 go.Scattergl(
                     x=normal_rows["UTC_STAMP"],
                     y=normal_rows["value"],
-                    mode="lines+markers",
-                    marker=dict(size=8),
+                    mode="lines",
                     name=f"{col_name} (sampled)"
                 )
             )
@@ -612,7 +611,7 @@ def update_total_graph(stored_data, aggregation_level, bar_mode, start_date, end
         y="value",
         color="variable",
         barmode=bar_mode,
-        title="Celková spotřeba podle času",
+        title="Spotřebovaná energie",
         labels={"period": "DATUM", "value": "kWh"}
     )
 
