@@ -624,4 +624,4 @@ if __name__ == "__main__":
     for table_name, rng in data_ranges.items():
         print(f"{table_name}: From {rng['min_time']} to {rng['max_time']}")
 
-    app.run_server(debug=True, port=8000, host='YOUR.IP')
+    app.run(debug=True, port=8000, host='127.0.0.1')
