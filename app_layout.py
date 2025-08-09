@@ -47,34 +47,46 @@ class LayoutBuilder:
                 html.H3("Závislost příkonu na čase"),
                 html.Div(style={"height": "10px"}),
                 html.Div(self.range_text_act, style={"margin-bottom": "20px"}),
-                html.Div([
-                    html.Div([
-                        html.Div([
-                            dcc.RadioItems(
-                                id="time-unit-actual",
-                                options=[
-                                    {"label": "Rok", "value": "year"},
-                                    {"label": "Měsíc", "value": "month"},
-                                    {"label": "Týden", "value": "week"},
-                                    {"label": "Den", "value": "day"},
-                                ],
-                                value=self.default_unit_act,
-                                inline=True,
-                                labelStyle={"margin-right": "10px"},
-                            ),
-                            dcc.Dropdown(
-                                id="time-value-actual",
-                                options=self.period_options_act.get(self.default_unit_act, []),
-                                value=self.default_value_act,
-                                style={"width": "200px", "margin-left": "10px"},
-                            ),
-                        ],
-                            style={
-                                "display": "flex",
-                                "align-items": "center",
-                                "margin-bottom": "10px",
-                            },
-                        ),
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                dcc.Dropdown(
+                                    id="time-unit-actual",
+                                    options=[
+                                        {"label": "Rok", "value": "year"},
+                                        {"label": "Měsíc", "value": "month"},
+                                        {"label": "Týden", "value": "week"},
+                                        {"label": "Den", "value": "day"},
+                                    ],
+                                    value=self.default_unit_act,
+                                    clearable=False,
+                                    style={
+                                        "width": "150px",
+                                        "border-radius": "20px",
+                                    },
+                                ),
+                                dcc.Dropdown(
+                                    id="time-value-actual",
+                                    options=self.period_options_act.get(self.default_unit_act, []),
+                                    value=self.default_value_act,
+                                    style={
+                                        "width": "200px",
+                                        "margin-left": "10px",
+                                        "border-radius": "20px",
+                                    },
+                                ),
+                            ]
+                        )
+                    ],
+                    style={
+                        "display": "flex",
+                        "align-items": "center",
+                        "margin-bottom": "10px",
+                    },
+                ),
+                html.Div(
+                    [
                         dcc.Loading(
                             id="loading-actual",
                             type="circle",
@@ -88,33 +100,45 @@ class LayoutBuilder:
                                 )
                             ],
                         ),
-                        html.Div(id="actual-data-info", style={"margin-top": "30px"}),
-                    ], style={"flex": "1", "display": "flex", "flex-direction": "column"}),
-                    html.Div([
-                        html.Span("VYBER SI, KTERÁ DATA ZOBRAZÍŠ NA GRAFU (ACTUAL):"),
-                        dcc.Checklist(
-                            id="variable-checklist",
-                            options=[
-                                {"label": "IN", "value": "IN"},
-                                {"label": "OUT", "value": "OUT"},
-                                {"label": "ATLAS", "value": "ATLAS"},
-                                {"label": "BUPI", "value": "BUPI"},
-                                {"label": "RENDER", "value": "RENDER"},
+                        html.Div(
+                            [
+                                html.Span(
+                                    "VYBER SI, KTERÁ DATA ZOBRAZÍŠ NA GRAFU (ACTUAL):"
+                                ),
+                                dcc.Checklist(
+                                    id="variable-checklist",
+                                    options=[
+                                        {"label": "IN", "value": "IN"},
+                                        {"label": "OUT", "value": "OUT"},
+                                        {"label": "ATLAS", "value": "ATLAS"},
+                                        {"label": "BUPI", "value": "BUPI"},
+                                        {"label": "RENDER", "value": "RENDER"},
+                                    ],
+                                    value=[],
+                                    style={
+                                        "display": "flex",
+                                        "flex-direction": "column",
+                                        "gap": "10px",
+                                    },
+                                ),
                             ],
-                            value=[],
                             style={
+                                "margin-left": "20px",
                                 "display": "flex",
                                 "flex-direction": "column",
-                                "gap": "10px",
                             },
                         ),
-                    ], style={"margin-left": "20px", "display": "flex", "flex-direction": "column"}),
-                ], style={"display": "flex"}),
-            ]),
+                    ],
+                    style={"display": "flex"},
+                ),
+                html.Div(id="actual-data-info", style={"margin-top": "30px"}),
+            ],
+                style={"display": "flex", "flex-direction": "column"}
+            ),
             html.Div([
                 html.H3("Celková spotřeba podle času"),
                 html.Div([
-                    dcc.RadioItems(
+                    dcc.Dropdown(
                         id="time-unit-total",
                         options=[
                             {"label": "Rok", "value": "year"},
@@ -123,14 +147,18 @@ class LayoutBuilder:
                             {"label": "Den", "value": "day"},
                         ],
                         value=self.default_unit_tot,
-                        inline=True,
-                        labelStyle={"margin-right": "10px"},
+                        clearable=False,
+                        style={"width": "150px", "border-radius": "20px"},
                     ),
                     dcc.Dropdown(
                         id="time-value-total",
                         options=self.period_options_tot.get(self.default_unit_tot, []),
                         value=self.default_value_tot,
-                        style={"width": "200px", "margin-left": "10px"},
+                        style={
+                            "width": "200px",
+                            "margin-left": "10px",
+                            "border-radius": "20px",
+                        },
                     ),
                 ], style={"display": "flex", "align-items": "center", "margin-bottom": "20px"}),
                 html.Div(self.range_text_tot, style={"margin-bottom": "20px"}),
@@ -149,7 +177,10 @@ class LayoutBuilder:
                             {"label": "Total", "value": "To"},
                         ],
                         value="T",
-                        style={"margin-right": "5px"},
+                        style={
+                            "margin-right": "5px",
+                            "border-radius": "20px",
+                        },
                     ),
                 ], style={"display": "flex", "flex-direction": "column", "margin-bottom": "20px"}),
                 html.Div([
