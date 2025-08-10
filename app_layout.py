@@ -3,8 +3,20 @@ from dash import dcc, html
 from config import (
     TITLE_MARGIN_LEFT,
     TITLE_MARGIN_TOP,
-    SECTION_MARGIN_LEFT,
-    SECTION_MARGIN_TOP,
+    ACTUAL_GRAPH_RIGHT,
+    ACTUAL_GRAPH_UP,
+    TOTAL_GRAPH_RIGHT,
+    TOTAL_GRAPH_UP,
+    ACTUAL_VARIABLES_RIGHT,
+    ACTUAL_VARIABLES_UP,
+    ACTUAL_PERIOD_RIGHT,
+    ACTUAL_PERIOD_UP,
+    ACTUAL_DATEPICKER_RIGHT,
+    ACTUAL_DATEPICKER_UP,
+    TOTAL_PERIOD_RIGHT,
+    TOTAL_PERIOD_UP,
+    TOTAL_DATEPICKER_RIGHT,
+    TOTAL_DATEPICKER_UP,
 )
 
 
@@ -64,6 +76,8 @@ class LayoutBuilder:
                                     style={
                                         "width": "150px",
                                         "border-radius": "20px",
+                                        "margin-left": ACTUAL_PERIOD_RIGHT,
+                                        "margin-top": -ACTUAL_PERIOD_UP,
                                     },
                                 ),
                                 dcc.Dropdown(
@@ -72,8 +86,9 @@ class LayoutBuilder:
                                     value=self.default_value_act,
                                     style={
                                         "width": "200px",
-                                        "margin-left": "10px",
+                                        "margin-left": 10 + ACTUAL_DATEPICKER_RIGHT,
                                         "border-radius": "20px",
+                                        "margin-top": -ACTUAL_DATEPICKER_UP,
                                     },
                                 ),
                             ]
@@ -94,8 +109,8 @@ class LayoutBuilder:
                                 dcc.Graph(
                                     id="consumption_vs_time",
                                     style={
-                                        "margin-left": SECTION_MARGIN_LEFT,
-                                        "margin-top": SECTION_MARGIN_TOP,
+                                        "margin-left": ACTUAL_GRAPH_RIGHT,
+                                        "margin-top": -ACTUAL_GRAPH_UP,
                                     },
                                 )
                             ],
@@ -123,9 +138,10 @@ class LayoutBuilder:
                                 ),
                             ],
                             style={
-                                "margin-left": "20px",
+                                "margin-left": 20 + ACTUAL_VARIABLES_RIGHT,
                                 "display": "flex",
                                 "flex-direction": "column",
+                                "margin-top": -ACTUAL_VARIABLES_UP,
                             },
                         ),
                     ],
@@ -148,7 +164,12 @@ class LayoutBuilder:
                         ],
                         value=self.default_unit_tot,
                         clearable=False,
-                        style={"width": "150px", "border-radius": "20px"},
+                        style={
+                            "width": "150px",
+                            "border-radius": "20px",
+                            "margin-left": TOTAL_PERIOD_RIGHT,
+                            "margin-top": -TOTAL_PERIOD_UP,
+                        },
                     ),
                     dcc.Dropdown(
                         id="time-value-total",
@@ -156,8 +177,9 @@ class LayoutBuilder:
                         value=self.default_value_tot,
                         style={
                             "width": "200px",
-                            "margin-left": "10px",
+                            "margin-left": 10 + TOTAL_DATEPICKER_RIGHT,
                             "border-radius": "20px",
+                            "margin-top": -TOTAL_DATEPICKER_UP,
                         },
                     ),
                 ], style={"display": "flex", "align-items": "center", "margin-bottom": "20px"}),
@@ -211,8 +233,8 @@ class LayoutBuilder:
                         dcc.Graph(
                             id="consumption_vs_time_total",
                             style={
-                                "margin-left": SECTION_MARGIN_LEFT,
-                                "margin-top": SECTION_MARGIN_TOP,
+                                "margin-left": TOTAL_GRAPH_RIGHT,
+                                "margin-top": -TOTAL_GRAPH_UP,
                             },
                         )
                     ],
