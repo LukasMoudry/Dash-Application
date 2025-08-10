@@ -58,7 +58,7 @@ def build_actual_figure(df: pd.DataFrame) -> go.Figure:
                 )
             )
     fig.update_layout(
-        title="Závislost příkonu na čase",
+        title="",  #"Závislost příkonu na čase",
         yaxis_title="kW",
         xaxis_title="Datum",
         hovermode="x unified",

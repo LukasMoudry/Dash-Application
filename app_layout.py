@@ -59,47 +59,49 @@ class LayoutBuilder:
                 html.H3("Závislost příkonu na čase"),
                 html.Div(style={"height": "10px"}),
                 html.Div(self.range_text_act, style={"margin-bottom": "20px"}),
+
+                # --- ACTUAL: Date controls in one row ---
                 html.Div(
                     [
-                        html.Div(
-                            [
-                                dcc.Dropdown(
-                                    id="time-unit-actual",
-                                    options=[
-                                        {"label": "Rok", "value": "year"},
-                                        {"label": "Měsíc", "value": "month"},
-                                        {"label": "Týden", "value": "week"},
-                                        {"label": "Den", "value": "day"},
-                                    ],
-                                    value=self.default_unit_act,
-                                    clearable=False,
-                                    style={
-                                        "width": "150px",
-                                        "border-radius": "20px",
-                                        "margin-left": ACTUAL_PERIOD_RIGHT,
-                                        "margin-top": -ACTUAL_PERIOD_UP,
-                                    },
-                                ),
-                                dcc.Dropdown(
-                                    id="time-value-actual",
-                                    options=self.period_options_act.get(self.default_unit_act, []),
-                                    value=self.default_value_act,
-                                    style={
-                                        "width": "200px",
-                                        "margin-left": 10 + ACTUAL_DATEPICKER_RIGHT,
-                                        "border-radius": "20px",
-                                        "margin-top": -ACTUAL_DATEPICKER_UP,
-                                    },
-                                ),
-                            ]
-                        )
+                        dcc.Dropdown(
+                            id="time-unit-actual",
+                            options=[
+                                {"label": "Rok", "value": "year"},
+                                {"label": "Měsíc", "value": "month"},
+                                {"label": "Týden", "value": "week"},
+                                {"label": "Den", "value": "day"},
+                            ],
+                            value=self.default_unit_act,
+                            clearable=False,
+                            style={
+                                "width": "150px",
+                                "border-radius": "20px",
+                                "margin-left": ACTUAL_PERIOD_RIGHT,
+                                "margin-top": -ACTUAL_PERIOD_UP,
+                            },
+                        ),
+                        dcc.Dropdown(
+                            id="time-value-actual",
+                            options=self.period_options_act.get(self.default_unit_act, []),
+                            value=self.default_value_act,
+                            style={
+                                "width": "200px",
+                                "margin-left": 10 + ACTUAL_DATEPICKER_RIGHT,
+                                "border-radius": "20px",
+                                "margin-top": -ACTUAL_DATEPICKER_UP,
+                            },
+                        ),
                     ],
                     style={
                         "display": "flex",
                         "align-items": "center",
+                        "gap": "10px",
+                        "flex-wrap": "nowrap",
                         "margin-bottom": "10px",
                     },
                 ),
+
+                # --- ACTUAL: Graph + variables; graph made wider via flex ---
                 html.Div(
                     [
                         dcc.Loading(
@@ -111,14 +113,16 @@ class LayoutBuilder:
                                     style={
                                         "margin-left": ACTUAL_GRAPH_RIGHT,
                                         "margin-top": -ACTUAL_GRAPH_UP,
+                                        "width": "1000px",
                                     },
                                 )
                             ],
+                            style={"flex": "1"}  # let the loading/graph area grow
                         ),
                         html.Div(
                             [
                                 html.Span(
-                                    "VYBER SI, KTERÁ DATA ZOBRAZÍŠ NA GRAFU (ACTUAL):"
+                                    ""#"VYBER SI, KTERÁ DATA ZOBRAZÍŠ NA GRAFU (ACTUAL):"
                                 ),
                                 dcc.Checklist(
                                     id="variable-checklist",
@@ -142,15 +146,18 @@ class LayoutBuilder:
                                 "display": "flex",
                                 "flex-direction": "column",
                                 "margin-top": -ACTUAL_VARIABLES_UP,
+                                "flex": "0 0 260px",  # fixed sidebar width so graph can expand
                             },
                         ),
                     ],
-                    style={"display": "flex"},
+                    style={"display": "flex", "align-items": "stretch"},
                 ),
                 html.Div(id="actual-data-info", style={"margin-top": "30px"}),
             ],
                 style={"display": "flex", "flex-direction": "column"}
             ),
+
+            # --- TOTAL section (kept, but force the two controls to stay inline) ---
             html.Div([
                 html.H3("Celková spotřeba podle času"),
                 html.Div([
@@ -182,7 +189,13 @@ class LayoutBuilder:
                             "margin-top": -TOTAL_DATEPICKER_UP,
                         },
                     ),
-                ], style={"display": "flex", "align-items": "center", "margin-bottom": "20px"}),
+                ], style={
+                    "display": "flex",
+                    "align-items": "center",
+                    "gap": "10px",
+                    "flex-wrap": "nowrap",
+                    "margin-bottom": "20px"
+                }),
                 html.Div(self.range_text_tot, style={"margin-bottom": "20px"}),
                 html.Div([
                     html.Span(

@@ -5,9 +5,9 @@ TITLE_MARGIN_LEFT = 0
 TITLE_MARGIN_TOP = 0
 
 # Offsets for the ACTUAL graph component
-ACTUAL_GRAPH_RIGHT = 0
+ACTUAL_GRAPH_RIGHT = -50
 # Positive values move the graph upwards
-ACTUAL_GRAPH_UP = 0
+ACTUAL_GRAPH_UP = 10
 
 # Offsets for the TOTAL graph component
 TOTAL_GRAPH_RIGHT = 0
@@ -15,8 +15,8 @@ TOTAL_GRAPH_RIGHT = 0
 TOTAL_GRAPH_UP = 0
 
 # Position of the ACTUAL variables checklist
-ACTUAL_VARIABLES_RIGHT = -10
-ACTUAL_VARIABLES_UP = -200
+ACTUAL_VARIABLES_RIGHT = -20
+ACTUAL_VARIABLES_UP = -90
 
 # Dropdown controlling the period unit (year/month/week/day)
 ACTUAL_PERIOD_RIGHT = 0

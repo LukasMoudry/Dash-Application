@@ -54,7 +54,8 @@ def create_app():
     default_value_tot = total_min_date
 
     range_text_act = (
-        f"Databáze (ACTUAL) obsahuje data od {actual_min_date} do {actual_max_date}"
+        #f"Databáze (ACTUAL) obsahuje data od {actual_min_date} do {actual_max_date}"
+        ""
     )
     range_text_tot = (
         f"Databáze (TOTAL) obsahuje data od {total_min_date} do {total_max_date}"
