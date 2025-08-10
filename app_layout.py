@@ -44,40 +44,39 @@ class LayoutBuilder:
             ),
             dcc.Store(id="df-store-total", storage_type="memory"),
             html.Div([
-                html.H3("Závislost příkonu na čase"),
-                html.Div(style={"height": "10px"}),
+                html.H3(
+                    "Závislost příkonu na čase",
+                    style={"margin-top": "10px"},
+                ),
+                html.Div(style={"height": "5px"}),
                 html.Div(self.range_text_act, style={"margin-bottom": "20px"}),
                 html.Div(
                     [
-                        html.Div(
-                            [
-                                dcc.Dropdown(
-                                    id="time-unit-actual",
-                                    options=[
-                                        {"label": "Rok", "value": "year"},
-                                        {"label": "Měsíc", "value": "month"},
-                                        {"label": "Týden", "value": "week"},
-                                        {"label": "Den", "value": "day"},
-                                    ],
-                                    value=self.default_unit_act,
-                                    clearable=False,
-                                    style={
-                                        "width": "150px",
-                                        "border-radius": "20px",
-                                    },
-                                ),
-                                dcc.Dropdown(
-                                    id="time-value-actual",
-                                    options=self.period_options_act.get(self.default_unit_act, []),
-                                    value=self.default_value_act,
-                                    style={
-                                        "width": "200px",
-                                        "margin-left": "10px",
-                                        "border-radius": "20px",
-                                    },
-                                ),
-                            ]
-                        )
+                        dcc.Dropdown(
+                            id="time-unit-actual",
+                            options=[
+                                {"label": "Rok", "value": "year"},
+                                {"label": "Měsíc", "value": "month"},
+                                {"label": "Týden", "value": "week"},
+                                {"label": "Den", "value": "day"},
+                            ],
+                            value=self.default_unit_act,
+                            clearable=False,
+                            style={
+                                "width": "150px",
+                                "border-radius": "20px",
+                            },
+                        ),
+                        dcc.Dropdown(
+                            id="time-value-actual",
+                            options=self.period_options_act.get(self.default_unit_act, []),
+                            value=self.default_value_act,
+                            style={
+                                "width": "200px",
+                                "margin-left": "10px",
+                                "border-radius": "20px",
+                            },
+                        ),
                     ],
                     style={
                         "display": "flex",
@@ -96,6 +95,7 @@ class LayoutBuilder:
                                     style={
                                         "margin-left": SECTION_MARGIN_LEFT,
                                         "margin-top": SECTION_MARGIN_TOP,
+                                        "height": "600px",
                                     },
                                 )
                             ],
@@ -126,10 +126,11 @@ class LayoutBuilder:
                                 "margin-left": "20px",
                                 "display": "flex",
                                 "flex-direction": "column",
+                                "margin-top": SECTION_MARGIN_TOP,
                             },
                         ),
                     ],
-                    style={"display": "flex"},
+                    style={"display": "flex", "align-items": "flex-start"},
                 ),
                 html.Div(id="actual-data-info", style={"margin-top": "30px"}),
             ],
