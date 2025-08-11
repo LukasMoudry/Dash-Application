@@ -57,8 +57,8 @@ class LayoutBuilder:
     def _build_header(self):
         return html.H1(
             "NAME",
+            className="header-title",
             style={
-                "color": "green",
                 "margin-left": TITLE_MARGIN_LEFT,
                 "margin-top": TITLE_MARGIN_TOP,
             },
@@ -68,14 +68,13 @@ class LayoutBuilder:
     def _build_actual_section(self):
         return html.Div(
             [
-                #html.Div(style={"height": "10px"}),
                 html.Div(self.range_text_act, style={"margin-bottom": "20px"}),
                 self._build_actual_period_controls(),
                 self._build_actual_graph_section(),
                 self._build_actual_graph_name(),
-
                 html.Div(id="actual-data-info", style={"margin-top": "30px"}),
             ],
+            className="actual-section card",
             style={"display": "flex", "flex-direction": "column"},
         )
 
@@ -93,9 +92,9 @@ class LayoutBuilder:
                     ],
                     value=self.default_unit_act,
                     clearable=False,
+                    className="select-dropdown",
                     style={
                         "width": "150px",
-                        "border-radius": "20px",
                         "margin-left": ACTUAL_PERIOD_RIGHT,
                         "margin-top": -ACTUAL_PERIOD_UP,
                     },
@@ -104,21 +103,15 @@ class LayoutBuilder:
                     id="time-value-actual",
                     options=self.period_options_act.get(self.default_unit_act, []),
                     value=self.default_value_act,
+                    className="select-dropdown",
                     style={
                         "width": "200px",
                         "margin-left": 10 + ACTUAL_DATEPICKER_RIGHT,
-                        "border-radius": "20px",
                         "margin-top": -ACTUAL_DATEPICKER_UP,
                     },
                 ),
             ],
-            style={
-                "display": "flex",
-                "align-items": "center",
-                "gap": "10px",
-                "flex-wrap": "nowrap",
-                "margin-bottom": "10px",
-            },
+            className="control-row",
         )
 
     def _build_actual_graph_section(self):
@@ -143,7 +136,7 @@ class LayoutBuilder:
                 html.Div(
                     [
                         html.Span(
-                            ""  # "VYBER SI, KTERÁ DATA ZOBRAZÍŠ NA GRAFU (ACTUAL):",
+                            ""
                         ),
                         dcc.Checklist(
                             id="variable-checklist",
@@ -155,41 +148,23 @@ class LayoutBuilder:
                                 {"label": "RENDER", "value": "RENDER"},
                             ],
                             value=[],
-                            style={
-                                "display": "flex",
-                                "flex-direction": "column",
-                                "gap": "10px",
-                            },
+                            className="variable-checklist",
                         ),
                     ],
+                    className="variable-container",
                     style={
                         "margin-left": 20 + ACTUAL_VARIABLES_RIGHT,
-                        "display": "flex",
-                        "flex-direction": "column",
                         "margin-top": -ACTUAL_VARIABLES_UP,
-                        "flex": "0 0 260px",
                     },
                 ),
             ],
-            style={"display": "flex", "align-items": "stretch"},
+            className="actual-graph-wrapper",
         )
 
     def _build_actual_graph_name(self):
         return html.Div(
-            html.Span("Závislost příkonu na čase",
-                      style={"font-weight": "6000",
-                             "font-size": "35px"}),
-            style={
-                "margin-top": "-25px",
-                "padding": "20px 12px",
-                "display": "block",  # change to "block" + width 100% for full-width bar
-                "border-radius": "12px",
-                "background-color": "#FFFFFF",
-                # "border": "1px solid #e5e7eb",
-                "box-shadow": "0 1px 2px rgba(0,0,0,0.04)",
-                "align-self": "flex-start",
-                "margin-left": "240px"
-            },
+            html.Span("Závislost příkonu na čase", className="graph-title"),
+            className="graph-title-wrapper",
         )
 
     # -------- TOTAL section --------
@@ -320,3 +295,4 @@ class LayoutBuilder:
                 )
             ],
         )
+

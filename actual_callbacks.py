@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.express as px
 from dash import Input, Output, html
 
 from data_utils import DataFetcher
@@ -58,11 +59,21 @@ def build_actual_figure(df: pd.DataFrame) -> go.Figure:
                 )
             )
     fig.update_layout(
-        title="",  #"Závislost příkonu na čase",
+        template="plotly_white",
+        colorway=px.colors.qualitative.Set2,
+        title="",
         yaxis_title="kW",
         xaxis_title="",
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend=dict(
+            title="Variables",
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+        ),
+        margin=dict(l=40, r=20, t=40, b=40),
     )
     return fig
 
