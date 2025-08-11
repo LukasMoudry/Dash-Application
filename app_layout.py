@@ -9,6 +9,8 @@ from config import (
     TOTAL_GRAPH_UP,
     ACTUAL_VARIABLES_RIGHT,
     ACTUAL_VARIABLES_UP,
+    TOTAL_CONTROLS_RIGHT,
+    TOTAL_CONTROLS_UP,
     ACTUAL_PERIOD_RIGHT,
     ACTUAL_PERIOD_UP,
     ACTUAL_DATEPICKER_RIGHT,
@@ -69,7 +71,16 @@ class LayoutBuilder:
         return html.Div(
             [
                 html.Div(self.range_text_act, style={"margin-bottom": "20px"}),
-                self._build_actual_period_controls(),
+                self._build_period_controls(
+                    prefix="actual",
+                    options=self.period_options_act,
+                    default_unit=self.default_unit_act,
+                    default_value=self.default_value_act,
+                    period_right=ACTUAL_PERIOD_RIGHT,
+                    period_up=ACTUAL_PERIOD_UP,
+                    datepicker_right=ACTUAL_DATEPICKER_RIGHT,
+                    datepicker_up=ACTUAL_DATEPICKER_UP,
+                ),
                 self._build_actual_graph_section(),
                 self._build_actual_graph_name(),
                 html.Div(id="actual-data-info", style={"margin-top": "30px"}),
@@ -78,36 +89,47 @@ class LayoutBuilder:
             style={"display": "flex", "flex-direction": "column"},
         )
 
-    def _build_actual_period_controls(self):
-        """Dropdowns for selecting period in the ACTUAL section."""
+    def _build_period_controls(
+        self,
+        *,
+        prefix,
+        options,
+        default_unit,
+        default_value,
+        period_right,
+        period_up,
+        datepicker_right,
+        datepicker_up,
+    ):
+        """Generic dropdowns for selecting period."""
         return html.Div(
             [
                 dcc.Dropdown(
-                    id="time-unit-actual",
+                    id=f"time-unit-{prefix}",
                     options=[
                         {"label": "Rok", "value": "year"},
                         {"label": "Měsíc", "value": "month"},
                         {"label": "Týden", "value": "week"},
                         {"label": "Den", "value": "day"},
                     ],
-                    value=self.default_unit_act,
+                    value=default_unit,
                     clearable=False,
                     className="select-dropdown",
                     style={
                         "width": "150px",
-                        "margin-left": ACTUAL_PERIOD_RIGHT,
-                        "margin-top": -ACTUAL_PERIOD_UP,
+                        "margin-left": period_right,
+                        "margin-top": -period_up,
                     },
                 ),
                 dcc.Dropdown(
-                    id="time-value-actual",
-                    options=self.period_options_act.get(self.default_unit_act, []),
-                    value=self.default_value_act,
+                    id=f"time-value-{prefix}",
+                    options=options.get(default_unit, []),
+                    value=default_value,
                     className="select-dropdown",
                     style={
                         "width": "200px",
-                        "margin-left": 10 + ACTUAL_DATEPICKER_RIGHT,
-                        "margin-top": -ACTUAL_DATEPICKER_UP,
+                        "margin-left": 10 + datepicker_right,
+                        "margin-top": -datepicker_up,
                     },
                 ),
             ],
@@ -158,7 +180,7 @@ class LayoutBuilder:
                     },
                 ),
             ],
-            className="actual-graph-wrapper",
+            className="graph-wrapper",
         )
 
     def _build_actual_graph_name(self):
@@ -171,56 +193,23 @@ class LayoutBuilder:
     def _build_total_section(self):
         return html.Div(
             [
-                html.H3("Celková spotřeba podle času"),
-                self._build_total_period_controls(),
                 html.Div(self.range_text_tot, style={"margin-bottom": "20px"}),
-                self._build_total_aggregation_controls(),
-                self._build_total_bar_mode_controls(),
-                html.Div(id="total-data-info", style={"margin-bottom": "20px"}),
-                self._build_total_graph(),
-            ]
-        )
-
-    def _build_total_period_controls(self):
-        """Dropdowns for selecting period in the TOTAL section."""
-        return html.Div(
-            [
-                dcc.Dropdown(
-                    id="time-unit-total",
-                    options=[
-                        {"label": "Rok", "value": "year"},
-                        {"label": "Měsíc", "value": "month"},
-                        {"label": "Týden", "value": "week"},
-                        {"label": "Den", "value": "day"},
-                    ],
-                    value=self.default_unit_tot,
-                    clearable=False,
-                    style={
-                        "width": "150px",
-                        "border-radius": "20px",
-                        "margin-left": TOTAL_PERIOD_RIGHT,
-                        "margin-top": -TOTAL_PERIOD_UP,
-                    },
+                self._build_period_controls(
+                    prefix="total",
+                    options=self.period_options_tot,
+                    default_unit=self.default_unit_tot,
+                    default_value=self.default_value_tot,
+                    period_right=TOTAL_PERIOD_RIGHT,
+                    period_up=TOTAL_PERIOD_UP,
+                    datepicker_right=TOTAL_DATEPICKER_RIGHT,
+                    datepicker_up=TOTAL_DATEPICKER_UP,
                 ),
-                dcc.Dropdown(
-                    id="time-value-total",
-                    options=self.period_options_tot.get(self.default_unit_tot, []),
-                    value=self.default_value_tot,
-                    style={
-                        "width": "200px",
-                        "margin-left": 10 + TOTAL_DATEPICKER_RIGHT,
-                        "border-radius": "20px",
-                        "margin-top": -TOTAL_DATEPICKER_UP,
-                    },
-                ),
+                self._build_total_graph_section(),
+                self._build_total_graph_name(),
+                html.Div(id="total-data-info", style={"margin-top": "30px"}),
             ],
-            style={
-                "display": "flex",
-                "align-items": "center",
-                "gap": "10px",
-                "flex-wrap": "nowrap",
-                "margin-bottom": "20px",
-            },
+            className="total-section card",
+            style={"display": "flex", "flex-direction": "column"},
         )
 
     def _build_total_aggregation_controls(self):
@@ -280,19 +269,44 @@ class LayoutBuilder:
             style={"display": "flex", "align-items": "center"},
         )
 
-    def _build_total_graph(self):
-        """Graph wrapped in a loading indicator for the TOTAL section."""
-        return dcc.Loading(
-            id="loading-total",
-            type="circle",
-            children=[
-                dcc.Graph(
-                    id="consumption_vs_time_total",
+    def _build_total_graph_section(self):
+        """Graph with controls for the TOTAL section."""
+        return html.Div(
+            [
+                dcc.Loading(
+                    id="loading-total",
+                    type="circle",
+                    children=[
+                        dcc.Graph(
+                            id="consumption_vs_time_total",
+                            style={
+                                "margin-left": TOTAL_GRAPH_RIGHT,
+                                "margin-top": -TOTAL_GRAPH_UP,
+                                "width": "1000px",
+                            },
+                        )
+                    ],
+                    style={"flex": "1"},
+                ),
+                html.Div(
+                    [
+                        self._build_total_aggregation_controls(),
+                        self._build_total_bar_mode_controls(),
+                    ],
+                    className="variable-container",
                     style={
-                        "margin-left": TOTAL_GRAPH_RIGHT,
-                        "margin-top": -TOTAL_GRAPH_UP,
+                        "margin-left": 20 + TOTAL_CONTROLS_RIGHT,
+                        "margin-top": -TOTAL_CONTROLS_UP,
                     },
-                )
+                ),
             ],
+            className="graph-wrapper",
         )
+
+    def _build_total_graph_name(self):
+        return html.Div(
+            html.Span("Celková spotřeba podle času", className="graph-title"),
+            className="graph-title-wrapper",
+        )
+
 

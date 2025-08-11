@@ -18,6 +18,10 @@ TOTAL_GRAPH_UP = 0
 ACTUAL_VARIABLES_RIGHT = -20
 ACTUAL_VARIABLES_UP = -90
 
+# Position of the TOTAL controls (aggregation and bar mode)
+TOTAL_CONTROLS_RIGHT = -20
+TOTAL_CONTROLS_UP = -90
+
 # Dropdown controlling the period unit (year/month/week/day)
 ACTUAL_PERIOD_RIGHT = 0
 ACTUAL_PERIOD_UP = 0
