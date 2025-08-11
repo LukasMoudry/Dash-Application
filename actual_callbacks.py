@@ -60,7 +60,7 @@ def build_actual_figure(df: pd.DataFrame) -> go.Figure:
     fig.update_layout(
         title="",  #"Závislost příkonu na čase",
         yaxis_title="kW",
-        xaxis_title="Datum",
+        xaxis_title="",
         hovermode="x unified",
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )

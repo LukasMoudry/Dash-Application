@@ -68,11 +68,12 @@ class LayoutBuilder:
     def _build_actual_section(self):
         return html.Div(
             [
-                html.H3("Závislost příkonu na čase"),
-                html.Div(style={"height": "10px"}),
+                #html.Div(style={"height": "10px"}),
                 html.Div(self.range_text_act, style={"margin-bottom": "20px"}),
                 self._build_actual_period_controls(),
                 self._build_actual_graph_section(),
+                self._build_actual_graph_name(),
+
                 html.Div(id="actual-data-info", style={"margin-top": "30px"}),
             ],
             style={"display": "flex", "flex-direction": "column"},
@@ -171,6 +172,24 @@ class LayoutBuilder:
                 ),
             ],
             style={"display": "flex", "align-items": "stretch"},
+        )
+
+    def _build_actual_graph_name(self):
+        return html.Div(
+            html.Span("Závislost příkonu na čase",
+                      style={"font-weight": "6000",
+                             "font-size": "35px"}),
+            style={
+                "margin-top": "-25px",
+                "padding": "20px 12px",
+                "display": "block",  # change to "block" + width 100% for full-width bar
+                "border-radius": "12px",
+                "background-color": "#FFFFFF",
+                # "border": "1px solid #e5e7eb",
+                "box-shadow": "0 1px 2px rgba(0,0,0,0.04)",
+                "align-self": "flex-start",
+                "margin-left": "240px"
+            },
         )
 
     # -------- TOTAL section --------
