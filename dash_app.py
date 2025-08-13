@@ -58,7 +58,7 @@ def create_app():
         ""
     )
     range_text_tot = (
-        f"Databáze (TOTAL) obsahuje data od {total_min_date} do {total_max_date}"
+        #f"Databáze (TOTAL) obsahuje data od {total_min_date} do {total_max_date}"
     )
 
     # Build layout using a builder class
