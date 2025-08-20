@@ -119,4 +119,4 @@ def register_actual_callbacks(app, data_fetcher, period_options):
         fig = build_actual_figure(df)
 
         info_text += f" | Hustota = 1/{step}."
-        return fig, html.Div(info_text, style={"margin-top": "30px"})
+        return fig, info_text

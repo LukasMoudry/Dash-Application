@@ -35,3 +35,9 @@ TOTAL_DATEPICKER_UP = 0
 # Position of the TOTAL controls container
 TOTAL_VARIABLES_RIGHT = -20
 TOTAL_VARIABLES_UP = -90
+
+# Position of the information text elements
+ACTUAL_INFO_RIGHT = 1000
+ACTUAL_INFO_UP = 50
+TOTAL_INFO_RIGHT = 0
+TOTAL_INFO_UP = 0

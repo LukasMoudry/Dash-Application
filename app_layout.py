@@ -19,6 +19,10 @@ from config import (
     TOTAL_PERIOD_UP,
     TOTAL_DATEPICKER_RIGHT,
     TOTAL_DATEPICKER_UP,
+    ACTUAL_INFO_RIGHT,
+    ACTUAL_INFO_UP,
+    TOTAL_INFO_RIGHT,
+    TOTAL_INFO_UP,
 )
 
 
@@ -74,7 +78,13 @@ class LayoutBuilder:
                 self._build_actual_period_controls(),
                 self._build_actual_graph_section(),
                 self._build_actual_graph_name(),
-                html.Div(id="actual-data-info", style={"margin-top": "30px"}),
+                html.Div(
+                    id="actual-data-info",
+                    style={
+                        "margin-left": ACTUAL_INFO_RIGHT,
+                        "margin-top": 30 - ACTUAL_INFO_UP,
+                    },
+                ),
             ],
             className="actual-section card",
             style={"display": "flex", "flex-direction": "column"},
@@ -177,7 +187,13 @@ class LayoutBuilder:
                 self._build_total_period_controls(),
                 self._build_total_graph_section(),
                 self._build_total_graph_name(),
-                html.Div(id="total-data-info", style={"margin-top": "30px"}),
+                html.Div(
+                    id="total-data-info",
+                    style={
+                        "margin-left": TOTAL_INFO_RIGHT,
+                        "margin-top": 30 - TOTAL_INFO_UP,
+                    },
+                ),
             ],
             className="total-section card",
             style={"display": "flex", "flex-direction": "column"},

@@ -107,4 +107,4 @@ def register_total_callbacks(app, data_fetcher, period_options):
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
         )
         info_text = f"Graf teď zobrazuje data od {start_date} do {end_date}"
-        return fig, html.Div(info_text, style={"margin-top": "30px"})
+        return fig, info_text
